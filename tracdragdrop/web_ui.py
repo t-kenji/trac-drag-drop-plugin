@@ -40,6 +40,18 @@ def _list_message_files(dir):
     return set(file[0:-3] for file in os.listdir(dir) if file.endswith('.js'))
 
 
+WSAECONNABORTED = 10053
+WSAECONNRESET = 10054
+
+
+def _is_disconnected(req, e):
+    arg = e.args[0]
+    if arg in (errno.EPIPE, errno.ECONNRESET, WSAECONNABORTED, WSAECONNRESET):
+        return True
+    if 'mod_wsgi.version' in req.environ and arg == 'request data read error':
+        return True
+
+
 class TracDragDropModule(Component):
     implements(ITemplateProvider, IRequestFilter, IRequestHandler,
                ITemplateStreamFilter, IEnvironmentSetupParticipant)
@@ -156,9 +168,14 @@ class TracDragDropModule(Component):
     def match_request(self, req):
         match = re.match(r'/tracdragdrop/([^/]+)/([^/]+)/(.*)\Z', req.path_info)
         if match:
-            req.args['action'] = match.group(1)
-            req.args['realm'] = match.group(2)
-            req.args['path'] = match.group(3)
+            try:
+                req.args['action'] = match.group(1)
+                req.args['realm'] = match.group(2)
+                req.args['path'] = match.group(3)
+            except (IOError, socket.error), e:
+                if _is_disconnected(req, e):
+                    raise RequestDone
+                raise
             return True
 
     # IRequestHandler#process_request
@@ -325,11 +342,7 @@ class PseudoAttachmentObject(object):
             try:
                 buf = input.read(n)
             except (IOError, socket.error), e:
-                if e.args[0] in (errno.EPIPE, errno.ECONNRESET,
-                                 10053,  # WSAECONNABORTED
-                                 10054,  # WSAECONNRESET
-                                 'request data read error',  # from mod_wsgi
-                                ):
+                if _is_disconnected(req, e):
                     raise RequestDone
                 raise
             if not buf:
