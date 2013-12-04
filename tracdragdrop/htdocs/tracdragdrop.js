@@ -224,6 +224,13 @@ jQuery(document).ready(function($) {
                                : (prefix + '-' + n + suffix);
     }
 
+    function shortenDataUri(uri) {
+        if (/^data:/.test(uri)) {
+            uri = uri.substring(0, 72) + '...';
+        }
+        return uri;
+    }
+
     function createPasteArea(form) {
         var message = _("Paste an image to attach");
         var events = {};
@@ -302,7 +309,7 @@ jQuery(document).ready(function($) {
                     element = image = undefined;
                     alert(babel.format(
                         _("Cannot load an image from '%(src)s'."),
-                        {src: this.src}));
+                        {src: shortenDataUri(this.src)}));
                 };
                 element.bind(events);
             }, 1);
@@ -339,7 +346,7 @@ jQuery(document).ready(function($) {
         }
         catch (e) {
             alert(babel.format(_("Cannot load an image from '%(src)s'."),
-                               {src: image.src}));
+                               {src: shortenDataUri(image.src)}));
             return;
         }
         prepareUploadItem(data, {filename: filename});
