@@ -594,7 +594,7 @@ jQuery(document).ready(function($) {
         if (hasDragAndDrop) {
             fieldset.append(textNode(
                 ' ' + _("You may use drag and drop here.")));
-            if ('onpaste' in document.body) {
+            if ('onpaste' in document) {
                 createPasteArea(fieldset);
             }
         }
