@@ -42,15 +42,19 @@
 .tracdragdrop-paste {
  display: inline-block;
  overflow: hidden;
- padding: 2px 8px;
+ white-space: nowrap;
+ padding: 2px 6px;
  vertical-align: middle;
  border: 1px solid #777;
  -moz-border-radius: 2px;
  -webkit-border-radius: 2px;
  border-radius: 2px;
  background: #fff none;
- color: #333;
+ color: inherit;
  font-weight: bold;
+}
+.tracdragdrop-paste * {
+ display: none;
 }
 .tracdragdrop-paste::before {
  content: attr(data);
