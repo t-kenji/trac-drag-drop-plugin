@@ -1,4 +1,8 @@
 jQuery(document).ready(function($) {
+    var console = window.console;
+    if (!console || !console.log) {
+        console = {'log': function() { }};
+    }
     /* From 0.12-stable/trac/htdocs/js/babel.js */
     var babel = window.babel;
     if (babel.format('%(arg)d%%', {arg: 1}) !== '1%') {
@@ -50,7 +54,9 @@ jQuery(document).ready(function($) {
             try {
                 transfer.setData('DownloadURL', data);
             }
-            catch (e) { }
+            catch (e) {
+                console.log(babel.format('%s: %s', e.name, e.message), e);
+            }
         });
     }
     var tracdragdrop = window._tracdragdrop || undefined;
@@ -282,11 +288,9 @@ jQuery(document).ready(function($) {
             }
 
             setTimeout(function() {
-                var element = editable.children().filter(':not(br)');
+                var element = editable.find('img');
                 editable.empty();
-                if (element.size() !== 1 ||
-                    element.get(0).nodeName.toLowerCase() !== 'img')
-                {
+                if (element.size() === 0) {
                     alert(_("No available image on your clipboard"));
                     return;
                 }
@@ -294,7 +298,9 @@ jQuery(document).ready(function($) {
                 var image = element.get(0);
                 image.removeAttribute('width');
                 image.removeAttribute('height');
-                if (image.width !== 0 && image.height !== 0) {
+                if (image.complete === true ||
+                    image.width !== 0 && image.height !== 0)
+                {
                     prepareUploadImageUsingCanvas(image, filename);
                     return;
                 }
@@ -328,8 +334,10 @@ jQuery(document).ready(function($) {
 
     function prepareUploadImageUsingCanvas(image, filename) {
         var canvas = image.ownerDocument.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
+        canvas.width = image[image.naturalWidth !== undefined ?
+                             'naturalWidth' : 'width'];
+        canvas.height = image[image.naturalHeight !== undefined ?
+                              'naturalHeight' : 'height'];
         var context = canvas.getContext('2d');
         context.drawImage(image, 0, 0);
         var data;
@@ -341,10 +349,20 @@ jQuery(document).ready(function($) {
                 });
                 return;
             }
-            data = canvas.getAsFile ? canvas.getAsFile(filename)
-                                    : canvas.mozGetAsFile(filename);
+            if (canvas.getAsFile) {
+                data = canvas.getAsFile(filename);
+            }
+            else if (canvas.mozGetAsFile) {
+                data = canvas.mozGetAsFile(filename);
+            }
+            else if (canvas.toDataURL) {
+                data = convertBlobFromDataUri(canvas.toDataURL('image/png'));
+            }
         }
         catch (e) {
+            console.log(babel.format('%s: %s', e.name, e.message), e);
+        }
+        if (!data) {
             alert(babel.format(_("Cannot load an image from '%(src)s'."),
                                {src: shortenDataUri(image.src)}));
             return;
@@ -601,7 +619,7 @@ jQuery(document).ready(function($) {
         if (hasDragAndDrop) {
             fieldset.append(textNode(
                 ' ' + _("You may use drag and drop here.")));
-            if ('onpaste' in document) {
+            if ('onpaste' in document.body) {
                 createPasteArea(fieldset);
             }
         }
@@ -816,39 +834,45 @@ jQuery(document).ready(function($) {
 
     function convertBlobsFromUriList(urilist) {
         var items = [];
-        var re = /^data:([^,;]+)((?:;[^;,]*)*),([^\n]*)/;
         $.each(urilist.split(/\n/), function(idx, line) {
-            var match = re.exec(line);
-            if (!match) {
-                return;
+            var blob = convertBlobFromDataUri(line);
+            if (blob) {
+                items.push(blob);
             }
-            var mimetype = match[1].toLowerCase();
-            switch (mimetype) {
-            case 'image/png':
-            case 'image/jpeg':
-            case 'image/gif':
-                break;
-            default:
-                return;
-            }
-            var attrs = match[2].substring(1);
-            var body = match[3];
-            $.each(attrs.split(/;/), function(idx, val) {
-                switch (val) {
-                case 'base64':
-                    body = atob(body);
-                    break;
-                }
-            });
-            var length = body.length;
-            var buffer = new Uint8Array(length);
-            for (var i = 0; i < length; i++) {
-                buffer[i] = body.charCodeAt(i);
-            }
-            var blob = toBlob([buffer], mimetype);
-            items.push(blob);
         });
         return items;
+    }
+
+    function convertBlobFromDataUri(uri) {
+        var re = /^data:([^,;]+)((?:;[^;,]*)*),([^\n]*)/;
+        var match = re.exec(uri);
+        if (!match) {
+            return null;
+        }
+        var mimetype = match[1].toLowerCase();
+        switch (mimetype) {
+        case 'image/png':
+        case 'image/jpeg':
+        case 'image/gif':
+            break;
+        default:
+            return null;
+        }
+        var attrs = match[2].substring(1);
+        var body = match[3];
+        $.each(attrs.split(/;/), function(idx, val) {
+            switch (val) {
+            case 'base64':
+                body = atob(body);
+                break;
+            }
+        });
+        var length = body.length;
+        var buffer = new Uint8Array(length);
+        for (var i = 0; i < length; i++) {
+            buffer[i] = body.charCodeAt(i);
+        }
+        return toBlob([buffer], mimetype);
     }
 
     function prepareDragEvents() {
