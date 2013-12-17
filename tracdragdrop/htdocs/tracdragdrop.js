@@ -298,8 +298,8 @@ jQuery(document).ready(function($) {
                 var image = element.get(0);
                 image.removeAttribute('width');
                 image.removeAttribute('height');
-                if (image.complete === true ||
-                    image.width !== 0 && image.height !== 0)
+                if ((image.complete === true ?
+                     image.naturalWidth : image.width) !== 0)
                 {
                     prepareUploadImageUsingCanvas(image, filename);
                     return;
@@ -317,7 +317,7 @@ jQuery(document).ready(function($) {
                         _("Cannot load an image from '%(src)s'."),
                         {src: shortenDataUri(this.src)}));
                 };
-                element.bind(events);
+                $(image).bind(events);
             }, 1);
         };
         var editable = $('<div />')
