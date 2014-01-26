@@ -555,6 +555,27 @@ jQuery(document).ready(function($) {
                 var element = val.element;
                 if (message === undefined) {
                     element.remove();
+                    var filename = val.filename;
+                    var title = babel.format(
+                        tracdragdrop.no_image_msg,
+                        {id: filename, parent: tracdragdrop.parent_name});
+                    $('#content img[src*="/common/attachment.png"]')
+                        .each(function()
+                    {
+                        var match;
+                        if (this.title === title) {
+                            this.title = '';
+                            match = true;
+                        }
+                        if (this.alt === title) {
+                            this.alt = '';
+                            match = true;
+                        }
+                        if (match === true) {
+                            this.src = tracdragdrop.raw_parent_url +
+                                       encodeURIComponent(filename);
+                        }
+                    });
                 }
                 else {
                     element.find('.tracdragdrop-message')

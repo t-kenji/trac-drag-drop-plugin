@@ -14,6 +14,7 @@ from trac.attachment import AttachmentModule, Attachment
 from trac.core import Component, implements, TracError
 from trac.env import IEnvironmentSetupParticipant
 from trac.perm import PermissionError
+from trac.resource import get_resource_name, get_resource_url
 from trac.web.api import IRequestHandler, IRequestFilter, \
                          ITemplateStreamFilter, RequestDone, HTTPBadRequest
 from trac.web.chrome import Chrome, ITemplateProvider, add_stylesheet, \
@@ -138,6 +139,12 @@ class TracDragDropModule(Component):
                 'base_url': req.href().rstrip('/') + '/',
                 'new_url': req.href('tracdragdrop', 'new', resource.realm,
                                     resource.id),
+                'raw_parent_url':
+                    get_resource_url(self.env, resource.child('attachment'),
+                                     req.href, format='raw'),
+                'parent_name': get_resource_name(self.env, resource),
+                'no_image_msg': dgettext(
+                    'messages', 'No image "%(id)s" attached to %(parent)s'),
                 'can_create': attachments.get('can_create') or False,
                 'max_size': AttachmentModule(self.env).max_size,
             },
