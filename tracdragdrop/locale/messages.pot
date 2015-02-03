@@ -1,15 +1,15 @@
 # Translations template for TracDragDrop.
-# Copyright (C) 2012 Jun Omae
+# Copyright (C) 2015 Jun Omae
 # This file is distributed under the same license as the TracDragDrop
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: TracDragDrop 0.12.0.6\n"
+"Project-Id-Version: TracDragDrop 0.12.0.12\n"
 "Report-Msgid-Bugs-To: jun66j5@gmail.com\n"
-"POT-Creation-Date: 2012-05-21 21:05+0900\n"
+"POT-Creation-Date: 2015-02-04 01:13+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,6 @@ msgstr ""
 "Generated-By: Babel 0.9.6\n"
 
 #: tracdragdrop/web_ui.py:186 tracdragdrop/web_ui.py:188
-msgid "File name too long"
+msgid "Can't attach due to too long file name"
 msgstr ""
 

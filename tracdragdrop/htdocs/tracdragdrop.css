@@ -196,6 +196,9 @@ body > .tracdragdrop-dropdown {
  background-color: #247;
  color: #fff;
 }
+.tracdragdrop-message {
+ margin-left: 0.5em;
+}
 @media print {
  .tracdragdrop-dropdown, .tracdragdrop-queue, .tracdragdrop-dropeffect {
    display: none;

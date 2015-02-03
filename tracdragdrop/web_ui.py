@@ -233,9 +233,11 @@ class TracDragDropModule(Component):
                 mod.process_request(req)
             except OSError, e:
                 if e.args[0] == errno.ENAMETOOLONG:
-                    raise TracError(_("File name too long"))
+                    raise TracError(_("Can't attach due to too long file "
+                                      "name"))
                 if os.name == 'nt' and e.args[0] == errno.ENOENT:
-                    raise TracError(_("File name too long"))
+                    raise TracError(_("Can't attach due to too long file "
+                                      "name"))
                 raise TracError(os.strerror(e.args[0]))
             except RedirectListened:
                 pass

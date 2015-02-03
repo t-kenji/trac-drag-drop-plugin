@@ -419,7 +419,7 @@ jQuery(document).ready(function($) {
             queueItems.push(data);
         }
         else {
-            message.text(' \u2013 ' + error);
+            message.text(error).addClass('warning system-message');
         }
         return key;
     }
@@ -579,7 +579,8 @@ jQuery(document).ready(function($) {
                 }
                 else {
                     element.find('.tracdragdrop-message')
-                           .text(' \u2013 ' + message);
+                           .text(message)
+                           .addClass('warning system-message');
                 }
                 return false;
             }

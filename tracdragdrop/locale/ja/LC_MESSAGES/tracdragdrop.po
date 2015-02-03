@@ -1,14 +1,14 @@
 # Japanese translations for TracDragDrop.
-# Copyright (C) 2012 Jun Omae
+# Copyright (C) 2012-2015 Jun Omae
 # This file is distributed under the same license as the TracDragDrop
 # project.
-# Jun Omae <jun66j5@gmail.com>, 2012.
+# Jun Omae <jun66j5@gmail.com>, 2012-2015.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: TracDragDrop 0.12.0.3\n"
+"Project-Id-Version: TracDragDrop 0.12.0.12\n"
 "Report-Msgid-Bugs-To: jun66j5@gmail.com\n"
-"POT-Creation-Date: 2012-05-21 21:05+0900\n"
+"POT-Creation-Date: 2015-02-04 01:13+0900\n"
 "PO-Revision-Date: 2010-06-14 12:08+0900\n"
 "Last-Translator: Jun Omae <jun66j5@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -19,6 +19,6 @@ msgstr ""
 "Generated-By: Babel 0.9.6\n"
 
 #: tracdragdrop/web_ui.py:186 tracdragdrop/web_ui.py:188
-msgid "File name too long"
-msgstr "ファイル名が長過ぎます"
+msgid "Can't attach due to too long file name"
+msgstr "ファイル名が長すぎるため添付できません"
 
