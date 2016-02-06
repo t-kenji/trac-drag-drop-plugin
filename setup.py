@@ -21,13 +21,13 @@ def main():
 
     setup(
         name = 'TracDragDrop',
-        version = '0.12.0.12',
+        version = '0.12.0.13',
         description = 'Add drag-and-drop attachments feature to Trac',
         license = 'BSD', # the same as Trac
         url = 'http://trac-hacks.org/wiki/TracDragDropPlugin',
         author = 'Jun Omae',
         author_email = 'jun66j5@gmail.com',
-        install_requires = ['Trac >= 0.12'],
+        install_requires = ['Trac'],
         packages = find_packages(exclude=['*.tests*']),
         package_data = {
             'tracdragdrop': [
