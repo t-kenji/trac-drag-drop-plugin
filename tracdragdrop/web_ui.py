@@ -2,6 +2,7 @@
 
 import cgi
 import errno
+import inspect
 import os
 import re
 import socket
@@ -261,10 +262,7 @@ class TracDragDropModule(Component):
     def _render_attachments(self, req):
         realm = req.args['realm']
         path = req.args['path']
-        db = self.env.get_read_db()
-        attachments = [
-            attachment for attachment
-                       in Attachment.select(self.env, realm, path, db=db)]
+        attachments = list(self._select_attachments(realm, path))
         data = {}
         data['alist'] = {
             'can_create': False,
@@ -280,6 +278,14 @@ class TracDragDropModule(Component):
         else:
             template = 'tracdragdrop.html'
         return template, data, None
+
+    if 'db' in inspect.getargspec(Attachment.select)[0]:
+        def _select_attachments(self, realm, path):
+            db = self.env.get_read_db()
+            return Attachment.select(self.env, realm, path, db=db)
+    else:
+        def _select_attachments(self, realm, path):
+            return Attachment.select(self.env, realm, path)
 
     def _send_message_on_except(self, req, message, status):
         if not isinstance(message, unicode):
