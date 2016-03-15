@@ -635,7 +635,13 @@ jQuery(document).ready(function($) {
             attachfile.replaceWith(form);
             attachfile = form;
             queue = $('<dl />').addClass('attachments tracdragdrop-queue');
-            form.before(queue);
+            var dl = form.parent().children('dl.attachments');
+            if (dl.length === 0) {
+                form.before(queue);
+            }
+            else {
+                dl.after(queue);
+            }
         }
         containers.queue = queue;
         if (hasDragAndDrop) {
