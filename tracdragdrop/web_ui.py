@@ -200,6 +200,8 @@ class TracDragDropModule(Component):
                                                                     req)
                     req.args['compact'] = req.get_header(
                                                     'X-TracDragDrop-Compact')
+                    if req.get_header('X-TracDragDrop-Replace'):
+                        req.args['replace'] = '1'
 
                 # XXX dirty hack
                 req.redirect_listeners.insert(0, self._redirect_listener)

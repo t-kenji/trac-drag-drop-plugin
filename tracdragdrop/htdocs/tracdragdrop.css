@@ -100,7 +100,8 @@ div#content > div#attachments ul li {
  height: auto;
  text-align: center;
 }
-.tracdragdrop-dropeffect div:nth-child(2) span {
+.tracdragdrop-dropeffect div:nth-child(2) > span {
+ display: inline-block;
  padding: 0.6em 1.8em;
  border: 4px solid #444;
  -moz-border-radius: 6px;
@@ -111,8 +112,9 @@ div#content > div#attachments ul li {
  box-shadow: 0 0 12px #777;
  background: #fff none;
  color: #222;
+}
+.tracdragdrop-dropeffect div:nth-child(2) strong {
  font-size: 160%;
- font-weight: bold;
 }
 body > .tracdragdrop-dropdown {
  display: none;

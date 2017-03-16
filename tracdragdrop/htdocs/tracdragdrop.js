@@ -237,7 +237,7 @@ jQuery(document).ready(function($) {
         return uri;
     }
 
-    function createPasteArea(form) {
+    function createPasteArea(form, container) {
         var message = _("Paste an image to attach");
         var events = {};
         events.mouseenter = function() { $(this).focus() };
@@ -255,6 +255,7 @@ jQuery(document).ready(function($) {
             return event.ctrlKey === true || event.metaKey === true;
         };
         events.paste = function(event) {
+            var options = getOptionsFrom(form);
             var editable = $(this);
             var prefix = generateFilenamePrefix();
 
@@ -272,14 +273,15 @@ jQuery(document).ready(function($) {
                     alert(_("No available image on your clipboard"));
                     return false;
                 case 1:
-                    var filename = generateFilename(prefix, images[0].type);
-                    prepareUploadItem(images[0], {filename: filename});
+                    var o = {filename: generateFilename(prefix,
+                                                        images[0].type)};
+                    prepareUploadItem(images[0], $.extend(o, options));
                     break;
                 default:
                     $.each(images, function(idx, image) {
-                        var filename = generateFilename(prefix, image.type,
-                                                        idx + 1);
-                        prepareUploadItem(image, {filename: filename});
+                        var o = {filename: generateFilename(
+                                                prefix, image.type, idx + 1)};
+                        prepareUploadItem(image, $.extend(o, options));
                     });
                     break;
                 }
@@ -294,21 +296,21 @@ jQuery(document).ready(function($) {
                     alert(_("No available image on your clipboard"));
                     return;
                 }
-                var filename = prefix + '.png';
+                var o = $.extend({filename: prefix + '.png'}, options);
                 var image = element.get(0);
                 image.removeAttribute('width');
                 image.removeAttribute('height');
                 if ((image.complete === true ?
                      image.naturalWidth : image.width) !== 0)
                 {
-                    prepareUploadImageUsingCanvas(image, filename);
+                    prepareUploadImageUsingCanvas(image, o);
                     return;
                 }
                 var events = {};
                 events.load = function() {
                     element.unbind();
                     element = image = undefined;
-                    prepareUploadImageUsingCanvas(this, filename);
+                    prepareUploadImageUsingCanvas(this, o);
                 };
                 events.error = function(e) {
                     element.unbind();
@@ -327,12 +329,13 @@ jQuery(document).ready(function($) {
                     "with CTRL-V or \"Paste\" on the context menu."))
             .attr('data', message)
             .bind(events);
-        form.append($('<div />').append(editable));
+        container.append(editable);
         editable.css({width: editable.width() + 'px',
                       height: editable.height() + 'px'});
     }
 
-    function prepareUploadImageUsingCanvas(image, filename) {
+    function prepareUploadImageUsingCanvas(image, options) {
+        var filename = options.filename;
         var canvas = image.ownerDocument.createElement('canvas');
         canvas.width = image[image.naturalWidth !== undefined ?
                              'naturalWidth' : 'width'];
@@ -344,7 +347,7 @@ jQuery(document).ready(function($) {
         try {
             if (canvas.toBlob) {
                 canvas.toBlob(function(data) {
-                    prepareUploadItem(data, {filename: filename});
+                    prepareUploadItem(data, options);
                     startUpload();
                 });
                 return;
@@ -367,7 +370,7 @@ jQuery(document).ready(function($) {
                                {src: shortenDataUri(image.src)}));
             return;
         }
-        prepareUploadItem(data, {filename: filename});
+        prepareUploadItem(data, options);
         startUpload();
     }
 
@@ -377,6 +380,7 @@ jQuery(document).ready(function($) {
         var filename = 'filename' in options ? options.filename : item.name;
         var size = 'size' in options ? options.size : item.size;
         var description = 'description' in options ? options.description : '';
+        var replace = !!options.replace;
         var element, progress, cancel, message, error;
         filename = $.trim(filename).replace(/[\x00-\x1f]/g, '');
         if (xhrHasUpload) {
@@ -411,6 +415,7 @@ jQuery(document).ready(function($) {
             data.data = item;
             data.filename = filename;
             data.description = description;
+            data.replace = replace;
             data.size = size;
             data.element = element;
             data.message = message;
@@ -466,6 +471,9 @@ jQuery(document).ready(function($) {
         options.headers = {
             'X-TracDragDrop-Filename': encodeURIComponent(entry.filename),
             'X-TracDragDrop-Compact': compact ? '1' : '0'};
+        if (entry.replace) {
+            options.headers['X-TracDragDrop-Replace'] = '1';
+        }
         if (xhrHasUpload) {
             var upload = {};
             options.upload = upload;
@@ -512,12 +520,14 @@ jQuery(document).ready(function($) {
             }
             finishUploadItem(key, msg);
         };
-        if (entry.description && hasFormData) {
+        if (hasFormData) {
             var data = new FormData();
             data.append('__FORM_TOKEN', form_token);
             data.append('attachment', entry.data, entry.filename);
             data.append('compact', compact ? '1' : '0');
             data.append('description', entry.description);
+            if (entry.replace)
+                data.append('replace', '1');
             options.data = data;
         }
         else {
@@ -607,8 +617,24 @@ jQuery(document).ready(function($) {
     function prepareAttachForm() {
         var file = $('<input type="file" name="attachment" />')
                    .attr('multiple', 'multiple');
-        var legend = $('<legend />').text(_("Add Attachment"));
-        var fieldset = $('<fieldset />').append(legend, file);
+        var replace = $('<label />').append(
+            $('<input type="checkbox" name="replace" value="1" />'),
+            textNode(' ' + _("Replace existing attachment of the same name")));
+        var description = $('<label />').append(
+            textNode(_("Description:") + ' '),
+            $('<input type="text" name="description" size="60" value="" />'));
+        var fieldset = $('<fieldset />');
+        var paste;
+        fieldset.append($('<legend />').text(_("Add Attachment")), file);
+        if (hasDragAndDrop) {
+            fieldset.append(textNode(
+                                ' ' + _("You may use drag and drop here.")));
+            if ('onpaste' in document.body) {
+                paste = $('<div />');
+                fieldset.append(paste);
+            }
+        }
+        fieldset.append($('<br />'), description, $('<br />'), replace);
         var form = $('<form enctype="multipart/form-data" />')
                    .attr({method: 'post', action: tracdragdrop['new_url']})
                    .addClass('tracdragdrop-form')
@@ -643,19 +669,18 @@ jQuery(document).ready(function($) {
                 dl.after(queue);
             }
         }
-        containers.queue = queue;
-        if (hasDragAndDrop) {
-            fieldset.append(textNode(
-                ' ' + _("You may use drag and drop here.")));
-            if ('onpaste' in document.body) {
-                createPasteArea(fieldset);
-            }
+        if (paste !== undefined) {
+            createPasteArea(form, paste);
         }
+        containers.queue = queue;
         if (xhrHasUpload || file.get(0).files && hasFileReader) {
             queue.delegate('dt, li', 'click', cancelUploadItem);
             file.bind('change', function() {
-                $.each(this.files, function() { prepareUploadItem(this) });
-                this.form.reset();
+                var options = getOptionsFrom(form);
+                $.each(this.files, function() {
+                    prepareUploadItem(this, options);
+                });
+                resetForm(this.form);
                 startUpload();
             });
         }
@@ -665,7 +690,7 @@ jQuery(document).ready(function($) {
                 var key = item.attr('data-tracdragdrop-key');
                 var iframe = $('#tracdragdrop-attachfile-iframe');
                 if (iframe.attr('data-tracdragdrop-key') === key) {
-                    form.get(0).reset();
+                    resetForm(form.get(0));
                     file.attr('disabled', false);
                     iframe.attr('src', 'about:blank'); // cancel upload
                     iframe.remove();
@@ -689,7 +714,7 @@ jQuery(document).ready(function($) {
                     var valid = data.className == 'tracdragdrop-attachments';
                     data = data.innerHTML;
                     form.attr('target', '');
-                    form.get(0).reset();
+                    resetForm(form.get(0));
                     iframe.attr('src', 'about:blank'); // stop loading icon
                     iframe.remove();
                     iframe = null;
@@ -707,10 +732,13 @@ jQuery(document).ready(function($) {
                 form.focus();
                 form.submit();
                 file.attr('disabled', true);
+                var options = getOptionsFrom(form);
                 var filename = this.value;
                 filename = filename.substring(filename.lastIndexOf('\\') + 1);
                 filename = filename.substring(filename.lastIndexOf('/') + 1);
-                key = prepareUploadItem(null, {filename: filename, size:-1});
+                options.filename = filename;
+                options.size = -1;
+                key = prepareUploadItem(null, options);
                 iframe.attr('data-tracdragdrop-key', key);
                 $.each(queueItems, function(idx, val) {
                     if (val.key === key) {
@@ -725,6 +753,18 @@ jQuery(document).ready(function($) {
         if (hidden) {
             form.hide();
         }
+        prepareDragEvents(form);
+    }
+
+    function resetForm(form) {
+        var elements = form.elements;
+        var replace = elements['replace'];
+        var description = elements['description'];
+        var values = {replace: replace.checked,
+                      description: description.value};
+        form.reset();
+        replace.checked = values.replace;
+        description.value = values.description;
     }
 
     function setContainerList(element) {
@@ -903,18 +943,48 @@ jQuery(document).ready(function($) {
         return toBlob([buffer], mimetype);
     }
 
-    function prepareDragEvents() {
+    function getOptionsFrom(form) {
+        var replace = form.find('[name=replace]');
+        var options = {replace: replace[0].checked};
+        var description = form.find('[name=description]').val();
+        if (description)
+            options.description = description;
+        return options;
+    }
+
+    function prepareDragEvents(form) {
+        var replace = form.find('[name=replace]')[0];
         var body = document.body;
         var elements = $('html');
         var mask = $('<div />');
-        var indicator = $('<span />').text(_("Drop files to attach"));
-        indicator = $('<div />').append(indicator);
+        var indicator = $('<div />');
+        var hint_texts = [_("You may replace files by dropping files with " +
+                            "shift key"),
+                          _("Existing files of the same name would be " +
+                            "replaced with dropped files")];
+        var hint = $('<span />');
+        $('<span />')
+            .append($('<strong />').text(_("Drop files to attach")),
+                    $('<br />'), hint)
+            .appendTo(indicator);
+        var start_effect = function() {
+            dragging = true;
+            saved_replace = replace.checked;
+            effect.show();
+        };
+        var stop_effect = function() {
+            dragging = undefined;
+            replace.checked = saved_replace;
+            effect.hide();
+        };
         var effect = $('<div />').addClass('tracdragdrop-dropeffect')
                                  .append(mask, indicator)
                                  .hide()
-                                 .click(function() { effect.hide() })
+                                 .click(stop_effect)
                                  .appendTo(body);
-        var dragging = undefined;
+        var dragging;
+        var saved_replace;
+        var prev_replace;
         var events = {};
         var type;
         events.dragstart = function(event) { dragging = false };
@@ -940,32 +1010,39 @@ jQuery(document).ready(function($) {
                 if (found === undefined) {
                     return;
                 }
-                dragging = true;
                 type = found;
-                effect.show();
+                start_effect();
             }
             return !dragging;
         };
         events.dragleave = function(event) {
             if (dragging === true && event.target === mask.get(0)) {
-                dragging = undefined;
-                effect.hide();
+                stop_effect();
             }
         };
-        events.dragover = function(event) { return !dragging };
+        events.dragover = function(event) {
+            if (dragging) {
+                var checked = replace.checked = event.shiftKey;
+                if (prev_replace !== checked) {
+                    prev_replace = checked;
+                    hint.text(hint_texts[checked ? 1 : 0]);
+                }
+            }
+            return !dragging;
+        };
         events.drop = function(event) {
             if (dragging !== true) {
                 return;
             }
-            dragging = undefined;
-            effect.hide();
+            var options = getOptionsFrom(form);
+            stop_effect();
             var items;
             var transfer = event.originalEvent.dataTransfer;
             switch (type) {
             case 'Files':
             case 'application/x-moz-file':
                 items = transfer.files;
-                $.each(items, function() { prepareUploadItem(this) });
+                $.each(items, function() { prepareUploadItem(this, options) });
                 break;
             case 'text/uri-list':
                 var uris = transfer.getData(type);
@@ -973,14 +1050,14 @@ jQuery(document).ready(function($) {
                 items = convertBlobsFromUriList(uris);
                 switch (items.length) {
                 case 1:
-                    var filename = generateFilename(prefix, items[0].type);
-                    prepareUploadItem(items[0], {filename: filename});
+                    options.filename = generateFilename(prefix, items[0].type);
+                    prepareUploadItem(items[0], options);
                     break;
                 default:
                     $.each(items, function(idx, item) {
-                        var filename = generateFilename(prefix, item.type,
-                                                        idx + 1);
-                        prepareUploadItem(item, {filename: filename});
+                        var o = {filename: generateFilename(prefix, item.type,
+                                                            idx + 1)};
+                        prepareUploadItem(item, $.extend(o, options));
                     });
                     break;
                 }
@@ -1021,9 +1098,6 @@ jQuery(document).ready(function($) {
         });
         if (tracdragdrop.can_create) {
             prepareAttachForm();
-            if (hasDragAndDrop) {
-                prepareDragEvents();
-            }
         }
     }
 

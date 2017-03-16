@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TracDragDrop 0.12.0.3\n"
 "Report-Msgid-Bugs-To: jun66j5@gmail.com\n"
-"POT-Creation-Date: 2012-06-18 02:44+0900\n"
+"POT-Creation-Date: 2017-03-16 18:34+0900\n"
 "PO-Revision-Date: 2012-05-28 20:53+0900\n"
 "Last-Translator: Jun Omae <jun66j5@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -18,88 +18,104 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:192
+#: tracdragdrop/htdocs/tracdragdrop.js:241
 msgid "Paste an image to attach"
 msgstr "添付する画像をペースト"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:223
-#: tracdragdrop/htdocs/tracdragdrop.js:247
+#: tracdragdrop/htdocs/tracdragdrop.js:273
+#: tracdragdrop/htdocs/tracdragdrop.js:296
 msgid "No available image on your clipboard"
 msgstr "クリップボードに使用できる画像がありません"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:268
-#: tracdragdrop/htdocs/tracdragdrop.js:305
+#: tracdragdrop/htdocs/tracdragdrop.js:319
+#: tracdragdrop/htdocs/tracdragdrop.js:369
 #, python-format
 msgid "Cannot load an image from '%(src)s'."
 msgstr "'%(src)s' から画像を読み込むことができません。"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:277
+#: tracdragdrop/htdocs/tracdragdrop.js:328
 msgid ""
 "You can attach an image from your clipboard directly with CTRL-V or "
 "\"Paste\" on the context menu."
 msgstr "CTRL-V や右クリックメニューの貼り付けでクリップボードの画像を直接添付できます。"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:342
+#: tracdragdrop/htdocs/tracdragdrop.js:407
 #, python-format
 msgid "Exceeded maximum allowed file size (%(size)s bytes)"
 msgstr "最大ファイルサイズを超えています (%(size)sバイト)"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:346
+#: tracdragdrop/htdocs/tracdragdrop.js:411
 msgid "Can't upload empty file"
 msgstr "空のファイルはアップロードできません"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:372
+#: tracdragdrop/htdocs/tracdragdrop.js:438
 msgid "Canceled"
 msgstr "キャンセルしました"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:395
+#: tracdragdrop/htdocs/tracdragdrop.js:461
 #, python-format
 msgid "Uploaded %(percent)s%%"
 msgstr "%(percent)s%%アップロード"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:423
-#: tracdragdrop/htdocs/tracdragdrop.js:629
+#: tracdragdrop/htdocs/tracdragdrop.js:492
+#: tracdragdrop/htdocs/tracdragdrop.js:747
 msgid "Uploading..."
 msgstr "アップロード中…"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:435
+#: tracdragdrop/htdocs/tracdragdrop.js:504
 msgid "Timed out"
 msgstr "タイムアウトしました"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:438
+#: tracdragdrop/htdocs/tracdragdrop.js:507
 msgid "Aborted"
 msgstr "中断しました"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:527
+#: tracdragdrop/htdocs/tracdragdrop.js:622
+msgid "Replace existing attachment of the same name"
+msgstr "同名の添付ファイルを置き換える"
+
+#: tracdragdrop/htdocs/tracdragdrop.js:624
+msgid "Description:"
+msgstr "詳細:"
+
+#: tracdragdrop/htdocs/tracdragdrop.js:628
 msgid "Add Attachment"
 msgstr "添付ファイルの追加"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:559
+#: tracdragdrop/htdocs/tracdragdrop.js:631
 msgid "You may use drag and drop here."
 msgstr "ドラッグ・アンド・ドロップが使えます。"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:669
+#: tracdragdrop/htdocs/tracdragdrop.js:800
 msgid "Delete attachment"
 msgstr "添付ファイルの削除"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:675
+#: tracdragdrop/htdocs/tracdragdrop.js:806
 #, python-format
 msgid "Are you sure you want to delete '%(name)s'?"
 msgstr "'%(name)s' を削除しますか?"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:709
+#: tracdragdrop/htdocs/tracdragdrop.js:847
 msgid "TracLink"
 msgstr "TracLink"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:709
+#: tracdragdrop/htdocs/tracdragdrop.js:847
 msgid "Image macro"
 msgstr "Image マクロ"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:808
+#: tracdragdrop/htdocs/tracdragdrop.js:962
+msgid "You may replace files by dropping files with shift key"
+msgstr "Shift キーを押しながらファイルをドロップするとファイルを置き換えることができます"
+
+#: tracdragdrop/htdocs/tracdragdrop.js:964
+msgid "Existing files of the same name would be replaced with dropped files"
+msgstr "同じ名前の既存のファイルは、ドロップするファイルで置き換えられます"
+
+#: tracdragdrop/htdocs/tracdragdrop.js:968
 msgid "Drop files to attach"
 msgstr "添付するファイルをドロップ"
 
-#: tracdragdrop/htdocs/tracdragdrop.js:886
+#: tracdragdrop/htdocs/tracdragdrop.js:1071
 msgid "No available image in the dropped data"
 msgstr "ドロップされたデータに使用できる画像がありません"
 
