@@ -240,23 +240,27 @@ jQuery(document).ready(function($) {
     function createPasteArea(form, container) {
         var message = _("Paste an image to attach");
         var events = {};
-        events.mouseenter = function() { $(this).focus() };
-        events.focus = function() {
+        var enable = function() {
+            editable.empty();
             this.setAttribute('contenteditable', 'true');
-            $(this).empty();
+            this.focus();
         };
-        events.blur = function() {
-            $(this).empty();
+        var disable = function() {
+            editable.empty();
             this.removeAttribute('contenteditable');
             this.blur();
         };
-        events.keyup = function() { $(this).empty() };
+        events.mouseenter = function() {
+            editable.triggerHandler('focus');
+        };
+        events.focus = function() { enable.call(this) };
+        events.blur = function() { disable.call(this) };
+        events.keyup = function() { editable.empty() };
         events.keypress = function(event) {
             return event.ctrlKey === true || event.metaKey === true;
         };
         events.paste = function(event) {
             var options = getOptionsFrom(form);
-            var editable = $(this);
             var prefix = generateFilenamePrefix();
 
             if (event.originalEvent.clipboardData &&
