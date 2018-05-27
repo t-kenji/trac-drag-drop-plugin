@@ -1026,7 +1026,7 @@ jQuery(document).ready(function($) {
         };
         events.dragover = function(event) {
             if (dragging) {
-                var checked = replace.checked = event.shiftKey;
+                var checked = replace.checked = saved_replace || event.shiftKey;
                 if (prev_replace !== checked) {
                     prev_replace = checked;
                     hint.text(hint_texts[checked ? 1 : 0]);
